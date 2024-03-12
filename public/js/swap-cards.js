@@ -3,13 +3,13 @@
 AFRAME.registerComponent('switchable', {
     init: function() {
 
+        //declare variables:
         const card = this;
-        const player = document.querySelector('#camera');
-        
+        card.el.isMatched = false;
 
+        const player = document.querySelector('#camera');
         player.isHolding = false;
 
-        card.el.isMatched = false;
 
         card.el.addEventListener('click', (e) => {
 
@@ -42,11 +42,6 @@ AFRAME.registerComponent('switchable', {
                     card.el.setAttribute('scale', '1.1, 1.1, 1.1');
                 }
             }
-            
-
-            //ADD: hover effects
-
-
         });
     }
 });

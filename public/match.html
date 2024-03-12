@@ -42,13 +42,14 @@
                 </a-entity>
                 
             </a-entity>
+            
 
-            <!-- start screen -->
+            <!-- end screen -->
             <a-entity id="end_screen" position="0 0 -3.1" visible="false">
                 <a-entity id="screen" geometry="primitive:plane; width:20; height:20;" material="color:#5B84B1"></a-entity>
 
                 <a-entity id="restart_button" 
-                    position="0 -1.5 0"
+                    position="0 -20 0"
                     class="button interactive" 
                     geometry="primitive:plane; width:2; height:0.75;"
                     material="color:#FC766A;"
@@ -67,12 +68,12 @@
 
 
             <!-- wall -->
-            <a-entity id="wall" position="0 0 -6.1" geometry="primitive:plane; width:12; height:8;" material="color:#FFFFFF"></a-entity>
+            <a-entity id="wall" position="0 0 -6.1" geometry="primitive:plane; width:14; height:8;" material="color:#FFFFFF"></a-entity>
             
 
             <!-- cards -->
             <a-entity id="first_card" 
-                position="-4.5 0 -6"
+                position="-4.5 1.75 -6"
                 class="card interactive" 
                 geometry="primitive:plane; width:2; height:3;"
                 isPickedUp="false"
@@ -82,38 +83,88 @@
             </a-entity>
 
             <a-entity id="second_card" 
-                position="-1.5 0 -6"
+                position="-1.5 1.75 -6"
                 class="card interactive" 
                 geometry="primitive:plane; width:2; height:3;"
                 isPickedUp="false"
+                isMatched="false"
                 matchable>
                 <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
             </a-entity>
 
             <a-entity id="third_card" 
-                position="1.5 0 -6"
+                position="1.5 1.75 -6"
                 class="card interactive" 
                 geometry="primitive:plane; width:2; height:3;"
                 isPickedUp="false"
+                isMatched="false"
                 matchable>
                 <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
             </a-entity>
 
             <a-entity id="fourth_card" 
-                position="4.5 0 -6"
+                position="4.5 1.75 -6"
                 class="card interactive" 
                 geometry="primitive:plane; width:2; height:3;"
                 isPickedUp="false"
+                isMatched="false"
+                matchable>
+                <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
+            </a-entity>
+            
+            <a-entity id="fifth_card" 
+                position="-4.5 -1.75 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                isPickedUp="false"
+                isMatched="false"
                 matchable>
                 <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
             </a-entity>
 
+            <a-entity id="sixth_card" 
+                position="-1.5 -1.75 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                isPickedUp="false"
+                isMatched="false"
+                matchable>
+                <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
+            </a-entity>
+
+            <a-entity id="seventh_card" 
+                position="1.5 -1.75 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                isPickedUp="false"
+                isMatched="false"
+                matchable>
+                <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
+            </a-entity>
+
+            <a-entity id="eighth_card" 
+                position="4.5 -1.75 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                isPickedUp="false"
+                isMatched="false"
+                matchable>
+                <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
+            </a-entity>
             
+
             <!-- timer -->
             <a-entity id="timer"
                 position="2 -3.75 -5" 
-                text="value:Time: 5; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; anchor:left; baseline:center; width:10"
-                time="5">
+                text="value:Time: 10; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; anchor:left; baseline:center; width:10"
+                time="10">
+            </a-entity>
+
+            <!-- it's your turn text -->
+            <a-entity id="its_your_turn"
+                position="-4 -3.75 -5" 
+                text="value:Match the cards!; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; anchor:left; baseline:center; width:10"
+                visible="false">
             </a-entity>
 
         </a-scene>
@@ -125,7 +176,7 @@
             const player = document.querySelector('#camera');
             const timer = document.querySelector('#timer');
 
-            //variables:
+            //declare variables:
             var startSwap = false;
             var startMatch = false;
             var timeInterval;
@@ -133,36 +184,44 @@
                 document.querySelector('#first_card'),
                 document.querySelector('#second_card'),
                 document.querySelector('#third_card'),
-                document.querySelector('#fourth_card')
+                document.querySelector('#fourth_card'),
+                document.querySelector('#fifth_card'),
+                document.querySelector('#sixth_card'),
+                document.querySelector('#seventh_card'),
+                document.querySelector('#eighth_card')
             ];
 
-            //functions:
+            // TIMER FUNCTION
+            // --------------
             function updateTime() {
 
+                //update time:
                 var time = timer.getAttribute('time');
                 timer.setAttribute('time', time - 1);
                 timer.setAttribute('text', 'value', 'Time: ' + time);
 
+                //if timer over:
                 if(time == 0) {
+
                     //stop timer:
                     clearInterval(timeInterval);
 
                     //switch state:
                     player.state = "swapping";
 
-                    //emit:
+                    //emit match timer over:
                     socket.emit('match_timer_over');
 
                     //set all atributes to default again:
                     var pickedUpCard = document.querySelector('[isPickedUp="' + true + '"]')
                     if (pickedUpCard != null) {
-                        console.log("yeah");
                         pickedUpCard.setAttribute('isPickedUp', false);
                         pickedUpCard.querySelector('#cover').setAttribute('visible', true);
                     }
                     player.isHolding = false;
                     
-                    //ADD: things that end their turn?
+                    //hide it's your turn text:
+                    document.querySelector('#its_your_turn').setAttribute('visible', false);
 
                 }
             }
@@ -170,17 +229,47 @@
             
             socket.on('connect', (userData) => {
 
+                // START GAME
+                // ----------
                 document.querySelector("#start_button").addEventListener('click', function() {
                     startMatch = true;
+
+                    //emit start match:
                     socket.emit('start_match', true);
+                    
+                    //display waiting text:
                     document.querySelector("#waiting_text").setAttribute('visible', true);
 
+                    //if both players have clicked start:
                     if (startSwap == true) {
+
+                        //move start button onto screen:
+                        document.querySelector('#start_button').setAttribute('position', '0 -20 0');
+
+                        //display start screen:
                         document.querySelector('#start_screen').setAttribute('visible', false);
                     }
                 });
 
+                socket.on("swap_started", () => {
+                    startSwap = true;
+
+                    //if both players have clicked start:
+                    if (startMatch == true) {
+
+                        //move start button onto screen:
+                        document.querySelector('#start_button').setAttribute('position', '0 -20 0');
+
+                        //display start screen:
+                        document.querySelector('#start_screen').setAttribute('visible', false);
+                    }
+                });
+
+
+                // START MATCHING
+                // --------------
                 socket.on("swap_cards", (data) => {
+
                     //update card colours:
                     for (var i=0; i<cards.length; i++) {
                         if (data[i] != "#808080") {
@@ -191,26 +280,17 @@
                     //update state:
                     const player =  document.querySelector('#camera');
                     player.state = "matching";
-                    timer.setAttribute('time', 5);
+
+                    //start timer:
+                    timer.setAttribute('time', 10);
                     timeInterval = setInterval(updateTime, 1000);
+
+                    //display it's your turn text:
+                    document.querySelector('#its_your_turn').setAttribute('visible', true);
                 });
-                
             });
-
-            socket.on("swap_started", () => {
-                startSwap = true;
-
-                if (startMatch == true) {
-                    document.querySelector('#start_screen').setAttribute('visible', false);
-                }
-            });
-
-            //restart button functionality:
-            document.querySelector("#restart_button").addEventListener('click', function() {
-                window.location.href ="index.html";
-            });
-
         </script>
+        <script src="js/restart-game.js"></script>
         <script src="js/match-cards.js"></script>
     </body>
 </html>

@@ -42,12 +42,13 @@
                 
             </a-entity>
 
-            <!-- start screen -->
+
+            <!-- end screen -->
             <a-entity id="end_screen" position="0 0 -3" visible="false">
                 <a-entity id="screen" geometry="primitive:plane; width:20; height:20;" material="color:#FC766A"></a-entity>
 
                 <a-entity id="restart_button" 
-                    position="0 -1.5 0"
+                    position="0 -20 0"
                     class="button interactive" 
                     geometry="primitive:plane; width:2; height:0.75;"
                     material="color:#5B84B1;"
@@ -66,13 +67,13 @@
 
 
             <!-- wall -->
-            <a-entity id="wall" position="0 0 -6.1" geometry="primitive:plane; width:12; height:8;" material="color:#FFFFFF"></a-entity>
+            <a-entity id="wall" position="0 0 -6.1" geometry="primitive:plane; width:14; height:8;" material="color:#FFFFFF"></a-entity>
             
 
             <!-- cards -->
 
             <a-entity id="first_card" 
-                position="-4.5 0 -6"
+                position="-4.5 1.75 -6"
                 class="card interactive" 
                 geometry="primitive:plane; width:2; height:3;"
                 material="color:#B5BA72;"
@@ -82,7 +83,7 @@
             </a-entity>
 
             <a-entity id="second_card" 
-                position="-1.5 0 -6"
+                position="-1.5 1.75 -6"
                 class="card interactive" 
                 geometry="primitive:plane; width:2; height:3;"
                 material="color:#B5BA72;"
@@ -92,28 +93,64 @@
             </a-entity>
 
             <a-entity id="third_card" 
-                position="1.5 0 -6"
+                position="1.5 1.75 -6"
                 class="card interactive" 
                 geometry="primitive:plane; width:2; height:3;"
-                material="color:#5C374C;"
+                material="color:#EE8434;"
                 isPickedUp="false"
                 isMatched="false"
                 switchable>
             </a-entity>
 
             <a-entity id="fourth_card" 
-                position="4.5 0 -6"
+                position="4.5 1.75 -6"
                 class="card interactive" 
                 geometry="primitive:plane; width:2; height:3;"
-                material="color:#5C374C;"
+                material="color:#EE8434;"
                 isPickedUp="false"
                 isMatched="false"
                 switchable>
             </a-entity>
 
+            <a-entity id="fifth_card" 
+                position="-4.5 -1.75 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                material="color:#BAD7F2;"
+                isPickedUp="false"
+                isMatched="false"
+                switchable>
+            </a-entity>
 
-            
-            <!-- good colour: #137547 -->
+            <a-entity id="sixth_card" 
+                position="-1.5 -1.75 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                material="color:#BAD7F2;"
+                isPickedUp="false"
+                isMatched="false"
+                switchable>
+            </a-entity>
+
+            <a-entity id="seventh_card" 
+                position="1.5 -1.75 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                material="color:#B18FCF;"
+                isPickedUp="false"
+                isMatched="false"
+                switchable>
+            </a-entity>
+
+            <a-entity id="eighth_card" 
+                position="4.5 -1.75 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                material="color:#B18FCF;"
+                isPickedUp="false"
+                isMatched="false"
+                switchable>
+            </a-entity>
 
             
             <!-- timer -->
@@ -121,6 +158,12 @@
                 position="2 -3.75 -5" 
                 text="value:Time: 5; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; anchor:left; baseline:center; width:10"
                 time="5">
+            </a-entity>
+
+            <!-- it's your turn text -->
+            <a-entity id="its_your_turn"
+                position="-4 -3.75 -5" 
+                text="value:Swap the cards!; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; anchor:left; baseline:center; width:10">
             </a-entity>
 
         </a-scene>
@@ -140,21 +183,29 @@
                 document.querySelector('#first_card'),
                 document.querySelector('#second_card'),
                 document.querySelector('#third_card'),
-                document.querySelector('#fourth_card')
+                document.querySelector('#fourth_card'),
+                document.querySelector('#fifth_card'),
+                document.querySelector('#sixth_card'),
+                document.querySelector('#seventh_card'),
+                document.querySelector('#eighth_card')
             ];
 
-            //functions:
+            // TIMER FUNCTION
+            // --------------
             function updateTime() {
-          
+
+                //update time:
                 var time = timer.getAttribute('time');
                 timer.setAttribute('time', time - 1);
                 timer.setAttribute('text', 'value', 'Time: ' + time);
 
+                //if timer over:
                 if(time == 0) {
+
                     //stop timer:
                     clearInterval(timeInterval);
 
-                    //emit stuff:
+                    //emit swap timer over and array of card color values:
                     var cardCol = [];
                     for (var i=0; i<cards.length;i++) {
                         cardCol[i] = cards[i].getAttribute('material').color;
@@ -170,59 +221,85 @@
                         cards[i].setAttribute('scale', '1, 1, 1');
                     };
 
-
-
-                    //ADD: things that end their turn? turn off ability to click? 
-
+                    //hide it's your turn text:
+                    document.querySelector('#its_your_turn').setAttribute('visible', false);
                 }
             }
 
-            //after the timer: socket.emit each card color
+            
             socket.on('connect', (userData) => {
 
+                // START GAME
+                // ----------
                 document.querySelector("#start_button").addEventListener('click', function() {
                     startSwap = true;
                     socket.emit('start_swap');
                     document.querySelector("#waiting_text").setAttribute('visible', true);
 
                     if (startMatch == true) {
+                        document.querySelector('#start_button').setAttribute('position', '0 -20 0');
                         document.querySelector('#start_screen').setAttribute('visible', false);
                         player.state = "swapping";
                         timeInterval = setInterval(updateTime, 1000);
                     }
                 });
 
-            });
+                socket.on("match_started", () => {
+                    startMatch = true;
 
-            socket.on("color_change", (data) => {
-                //card one
-                cardOne = document.querySelector('#'+data[0]);
-                cardOne.setAttribute('material', 'color', '#808080');
-                cardOne.isMatched = true;
+                    if (startSwap == true) {
+                        document.querySelector('#start_button').setAttribute('position', '0 -20 0');
+                        document.querySelector('#start_screen').setAttribute('visible', false);
+                        player.state = "swapping";
+                        timeInterval = setInterval(updateTime, 1000);
+                    }
+                });
 
-                //card two
-                cardTwo = document.querySelector('#'+data[1]);
-                cardTwo.setAttribute('material', 'color', '#808080');
-                cardTwo.isMatched = true;
-            });
 
-            socket.on("match_started", () => {
-                startMatch = true;
+                // UPDATE CARDS ON MATCH
+                // ---------------------
+                socket.on("color_change", (data) => {
+                    //card one
+                    cardOne = document.querySelector('#'+data[0]);
+                    cardOne.setAttribute('material', 'color', '#808080');
+                    cardOne.isMatched = true;
 
-                if (startSwap == true) {
-                    document.querySelector('#start_screen').setAttribute('visible', false);
+                    //card two
+                    cardTwo = document.querySelector('#'+data[1]);
+                    cardTwo.setAttribute('material', 'color', '#808080');
+                    cardTwo.isMatched = true;
+                });
+                
+
+                // LISTEN FOR MATCH TURN OVER
+                // --------------------------
+                socket.on("match_timer_over", () =>{
+                    
+                    //update state:
                     player.state = "swapping";
+
+                    //start timer:
+                    timer.setAttribute('time', 5);
                     timeInterval = setInterval(updateTime, 1000);
-                }
-            });
 
-            socket.on("match_timer_over", () =>{
-                player.state = "swapping";
-                timer.setAttribute('time', 5);
-                timeInterval = setInterval(updateTime, 1000);
-            });
+                    //display it's your turn text:
+                    document.querySelector('#its_your_turn').setAttribute('visible', true);
+                });
 
+
+                // END GAME
+                // --------
+                socket.on("end_game", () => {
+                    //update state:
+                    player.state= "gameOver";
+
+                    //display end screen:
+                    document.querySelector('#restart_button').setAttribute('position', '0 -2 0');
+                    document.querySelector('#end_screen').setAttribute('visible', true);
+                });
+            });
         </script>
+        <script src="js/restart-game.js"></script>
         <script src="js/swap-cards.js"></script>
     </body>
 </html>

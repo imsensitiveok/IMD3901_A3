@@ -30,24 +30,26 @@ io.on('connection', (socket) => {
     });
 
     socket.on("swap_timer_over", (data) => {
-        //console.log("app.js");
         io.emit("swap_cards", data);
     });
 
     socket.on("match_timer_over", (data) => {
-        console.log('match timer is over');
         io.emit("match_timer_over");
     });
 
     socket.on("card_matched", (data) => {
-        //console.log("app.js");
         io.emit("color_change", data);
+    });
+
+    socket.on("won", (data) => {
+        io.emit("end_game");
     });
 
     socket.on("start_swap", (data) => {
         console.log("start swap event received");
         io.emit("swap_started");
-    })
+    });
+
     socket.on("start_match", (data) => {
         console.log("start match event received");
         io.emit("match_started");

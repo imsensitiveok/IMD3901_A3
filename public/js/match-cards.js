@@ -3,20 +3,16 @@
 AFRAME.registerComponent('matchable', {
     init: function() {
 
+        //declare constants:
         const card = this;
         const player = document.querySelector('#camera');
-
-        //player.state = "matching";
-        player.isHolding = false;
-
-        card.isMatched = false;
 
         card.el.addEventListener('click', (e) => {
 
             //check state:
             if (player.state == "matching") {
 
-                //switch colours:
+                //match cards:
                 if (player.isHolding === true) {
 
                     //get card IDs:
@@ -42,7 +38,7 @@ AFRAME.registerComponent('matchable', {
                             cardOne.setAttribute('isMatched', true);
                             card.el.setAttribute('isMatched', true);
 
-                            //ADD: emit stuff:
+                            //emit event and send ids of swapped cards:
                             var swappedCards = [cardOne.getAttribute('id'), card.el.getAttribute('id')]
                             socket.emit("card_matched", swappedCards);
                         } 
@@ -57,29 +53,27 @@ AFRAME.registerComponent('matchable', {
 
                         //check if won:
                         if (document.querySelector('[isMatched="' + false + '"]') == null) {
-                            console.log("you won!");
 
-                            //update state:
-                            player.state == "won"
+                            //display end screen:
+                            document.querySelector('#restart_button').setAttribute('position', '0 -2 0');
+                            document.querySelector('#end_screen').setAttribute('visible', true);
                             
-                            //ADD: emit stuff
-                            
+                            //emit stuff:
+                            socket.emit("won");
                         }
                     }
                 }
                 
                 //pick up card:
                 else {
+                    //set pickup/hold values to true:
                     card.el.setAttribute('isPickedUp', true);
-                    card.el.querySelector('#cover').setAttribute('visible', false);
                     player.isHolding = true;
+
+                    //uncover the card:
+                    card.el.querySelector('#cover').setAttribute('visible', false);
                 }
             }
-            
-
-            //ADD: hover effects
-
-
         });
     }
 });
