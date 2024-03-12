@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Swap & Match</title>
+        <meta charset="utf-8" />
+        <!--<link rel="icon" type="image/x-icon" href="/assets/swap.png">-->
+        <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    </head>
+    <body>
+        <a-scene background="color:#FFFFFF">
+
+            <!-- camera -->
+            <a-entity id="camera" 
+                camera position="0 0 0" 
+                cursor="rayOrigin:mouse;" 
+                raycaster="far:20; interval:200; objects:.interactive;" 
+                isHolding="false">
+            </a-entity>
+            
+            <a-assets>
+                <img id="swap_img" src="assets\swap_white.png" crossorigin="anonymous">
+                <img id="match_img" src="assets\match_white.png" crossorigin="anonymous">
+            </a-assets>
+
+            <a-entity
+                class="interactive" 
+                position="-5.5 0 -3"
+                geometry="primitive:plane; width:11; height:6;" 
+                material="color:#FC766A"
+                open_swap>
+                <a-image
+                    position="2.75 0.5 0"
+                    src="#swap_img"
+                    width="3"
+                    height="3">
+                    <a-entity
+                        position="0 -2 0"
+                        text="value:Swap; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:2.5; wrapCount:10;">
+                    </a-entity>
+                </a-image>
+            </a-entity>
+
+            <a-entity
+                class="interactive" 
+                position="5.5 0 -3"
+                geometry="primitive:plane; width:11; height:6;" 
+                material="color:#5B84B1"
+                open_match>
+                <a-image
+                    position="-2.75 0.5 0"
+                    src="#match_img"
+                    width="3"
+                    height="3">
+                    <a-entity
+                        position="0 -2 0"
+                        text="value:Match; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:2.5; wrapCount:10;">
+                    </a-entity>
+                </a-image>
+            </a-entity>
+
+        </a-scene>
+
+        <script>
+            AFRAME.registerComponent("open_match", {
+              init: function () {
+                var match = this;
+                match.el.addEventListener("click", function () {
+                    window.location.href ="/match.html";
+                });
+              },
+            });
+
+            AFRAME.registerComponent("open_swap", {
+              init: function () {
+                var swap = this;
+                swap.el.addEventListener("click", function () {
+                    window.location.href ="/swap.html";
+                });
+              },
+            });
+          </script>
+
+        <!--
+        <p>Please choose whether you want to match or sort</p>
+        <ul>
+            <li><a href="/match.html">Match</a></li>
+            <li><a href="/swap.html">Swap</a></li>
+        </ul>-->
+    </body>
+</html>

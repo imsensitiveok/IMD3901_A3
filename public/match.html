@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Match</title>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/x-icon" href="/assets/match.png">
+        <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    </head>
+
+    <body>
+        <a-scene background="color:#5B84B1">
+
+            <!-- camera -->
+            <a-entity id="camera" 
+                camera position="0 0 0" 
+                cursor="rayOrigin:mouse;" 
+                raycaster="far:20; interval:200; objects:.interactive;" 
+                isHolding="false"
+                state="swapping">
+            </a-entity>
+
+
+            <!-- start screen -->
+            <a-entity id="start_screen" position="0 0 -3">
+                <a-entity id="screen" geometry="primitive:plane; width:20; height:20;" material="color:#5B84B1"></a-entity>
+
+                <a-entity id="start_button" 
+                    position="0 -2 0"
+                    class="button interactive" 
+                    geometry="primitive:plane; width:2; height:0.75;"
+                    material="color:#FC766A;"
+                    timer>
+                    <a-entity
+                        text="value:Start; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:2.5; wrapCount:10;">
+                    </a-entity>
+                </a-entity>
+
+                <a-entity id="waiting_text"
+                    position="0 -1 0"
+                    text="value:waiting for other player...; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:5; wrapCount:30;"
+                    visible="false">
+                </a-entity>
+                
+            </a-entity>
+
+            <!-- start screen -->
+            <a-entity id="end_screen" position="0 0 -3.1" visible="false">
+                <a-entity id="screen" geometry="primitive:plane; width:20; height:20;" material="color:#5B84B1"></a-entity>
+
+                <a-entity id="restart_button" 
+                    position="0 -1.5 0"
+                    class="button interactive" 
+                    geometry="primitive:plane; width:2; height:0.75;"
+                    material="color:#FC766A;"
+                    timer>
+                    <a-entity
+                        text="value:Restart; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:2.5; wrapCount:10;">
+                    </a-entity>
+                </a-entity>
+
+                <a-entity id="text"
+                    position="0 -1 0"
+                    text="value:The game is over!; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:5; wrapCount:30;">
+                </a-entity>
+                
+            </a-entity>
+
+
+            <!-- wall -->
+            <a-entity id="wall" position="0 0 -6.1" geometry="primitive:plane; width:12; height:8;" material="color:#FFFFFF"></a-entity>
+            
+
+            <!-- cards -->
+            <a-entity id="first_card" 
+                position="-4.5 0 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                isPickedUp="false"
+                isMatched="false"
+                matchable>
+                <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
+            </a-entity>
+
+            <a-entity id="second_card" 
+                position="-1.5 0 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                isPickedUp="false"
+                matchable>
+                <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
+            </a-entity>
+
+            <a-entity id="third_card" 
+                position="1.5 0 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                isPickedUp="false"
+                matchable>
+                <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
+            </a-entity>
+
+            <a-entity id="fourth_card" 
+                position="4.5 0 -6"
+                class="card interactive" 
+                geometry="primitive:plane; width:2; height:3;"
+                isPickedUp="false"
+                matchable>
+                <a-entity id="cover" position="0 0 0.01" scale="1.05" geometry="primitive:plane; width:2; height:3;" material="color:#000000;"> </a-entity>
+            </a-entity>
+
+            
+            <!-- timer -->
+            <a-entity id="timer"
+                position="2 -3.75 -5" 
+                text="value:Time: 5; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; anchor:left; baseline:center; width:10"
+                time="5">
+            </a-entity>
+
+        </a-scene>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            //declare constants:
+            const socket = io();
+            const player = document.querySelector('#camera');
+            const timer = document.querySelector('#timer');
+
+            //variables:
+            var startSwap = false;
+            var startMatch = false;
+            var timeInterval;
+            var cards = [
+                document.querySelector('#first_card'),
+                document.querySelector('#second_card'),
+                document.querySelector('#third_card'),
+                document.querySelector('#fourth_card')
+            ];
+
+            //functions:
+            function updateTime() {
+
+                var time = timer.getAttribute('time');
+                timer.setAttribute('time', time - 1);
+                timer.setAttribute('text', 'value', 'Time: ' + time);
+
+                if(time == 0) {
+                    //stop timer:
+                    clearInterval(timeInterval);
+
+                    //switch state:
+                    player.state = "swapping";
+
+                    //emit:
+                    socket.emit('match_timer_over');
+
+                    //set all atributes to default again:
+                    var pickedUpCard = document.querySelector('[isPickedUp="' + true + '"]')
+                    if (pickedUpCard != null) {
+                        console.log("yeah");
+                        pickedUpCard.setAttribute('isPickedUp', false);
+                        pickedUpCard.querySelector('#cover').setAttribute('visible', true);
+                    }
+                    player.isHolding = false;
+                    
+                    //ADD: things that end their turn?
+
+                }
+            }
+
+            
+            socket.on('connect', (userData) => {
+
+                document.querySelector("#start_button").addEventListener('click', function() {
+                    startMatch = true;
+                    socket.emit('start_match', true);
+                    document.querySelector("#waiting_text").setAttribute('visible', true);
+
+                    if (startSwap == true) {
+                        document.querySelector('#start_screen').setAttribute('visible', false);
+                    }
+                });
+
+                socket.on("swap_cards", (data) => {
+                    //update card colours:
+                    for (var i=0; i<cards.length; i++) {
+                        if (data[i] != "#808080") {
+                            cards[i].setAttribute('material', 'color', data[i]);
+                        }
+                    }
+
+                    //update state:
+                    const player =  document.querySelector('#camera');
+                    player.state = "matching";
+                    timer.setAttribute('time', 5);
+                    timeInterval = setInterval(updateTime, 1000);
+                });
+                
+            });
+
+            socket.on("swap_started", () => {
+                startSwap = true;
+
+                if (startMatch == true) {
+                    document.querySelector('#start_screen').setAttribute('visible', false);
+                }
+            });
+
+            //restart button functionality:
+            document.querySelector("#restart_button").addEventListener('click', function() {
+                window.location.href ="index.html";
+            });
+
+        </script>
+        <script src="js/match-cards.js"></script>
+    </body>
+</html>
