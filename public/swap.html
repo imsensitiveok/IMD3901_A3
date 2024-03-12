@@ -13,18 +13,35 @@
             <!-- camera -->
             <a-entity id="camera" 
                 camera position="0 0 0" 
+                camera look-controls wasd-controls
                 cursor="rayOrigin:mouse;" 
                 raycaster="far:20; interval:200; objects:.interactive;" 
                 isHolding="false">
             </a-entity>
+            
+
+            <!-- audio files -->>
+            <a-assets timeout="10000">
+                <audio id="swap_sound" src="/assets/swap.mp3" preload="auto" crossorigin="anonymous"></audio>
+  
+              <a-entity 
+                class="swap-sound" 
+                sound="src:#swap_sound; autoplay:false;">
+              </a-entity>
+            </a-assets>
 
 
             <!-- start screen -->
             <a-entity id="start_screen" position="0 0 -3">
                 <a-entity id="screen" geometry="primitive:plane; width:20; height:20;" material="color:#FC766A"></a-entity>
 
+                <a-entity
+                    position="0 0.5 0"
+                    text="value:Your Goal: keep the other player from matching cards by swapping cards on your turn; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:5; wrapCount:30;">
+                </a-entity>
+                
                 <a-entity id="start_button" 
-                    position="0 -2 0"
+                    position="0 -1.7 0.1"
                     class="button interactive" 
                     geometry="primitive:plane; width:2; height:0.75;"
                     material="color:#5B84B1;"
@@ -35,7 +52,7 @@
                 </a-entity>
 
                 <a-entity id="waiting_text"
-                    position="0 -1 0"
+                    position="0 -0.8 0"
                     text="value:waiting for other player...; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:5; wrapCount:30;"
                     visible="false">
                 </a-entity>
@@ -48,7 +65,7 @@
                 <a-entity id="screen" geometry="primitive:plane; width:20; height:20;" material="color:#FC766A"></a-entity>
 
                 <a-entity id="restart_button" 
-                    position="0 -20 0"
+                    position="0 -20 0.1"
                     class="button interactive" 
                     geometry="primitive:plane; width:2; height:0.75;"
                     material="color:#5B84B1;"
@@ -59,7 +76,6 @@
                 </a-entity>
 
                 <a-entity id="text"
-                    position="0 -1 0"
                     text="value:The game is over!; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:5; wrapCount:30;">
                 </a-entity>
                 
@@ -78,7 +94,6 @@
                 geometry="primitive:plane; width:2; height:3;"
                 material="color:#B5BA72;"
                 isPickedUp="false"
-                isMatched="false"
                 switchable>
             </a-entity>
 
@@ -88,7 +103,6 @@
                 geometry="primitive:plane; width:2; height:3;"
                 material="color:#B5BA72;"
                 isPickedUp="false"
-                isMatched="false"
                 switchable>
             </a-entity>
 
@@ -98,7 +112,6 @@
                 geometry="primitive:plane; width:2; height:3;"
                 material="color:#EE8434;"
                 isPickedUp="false"
-                isMatched="false"
                 switchable>
             </a-entity>
 
@@ -108,7 +121,6 @@
                 geometry="primitive:plane; width:2; height:3;"
                 material="color:#EE8434;"
                 isPickedUp="false"
-                isMatched="false"
                 switchable>
             </a-entity>
 
@@ -118,7 +130,6 @@
                 geometry="primitive:plane; width:2; height:3;"
                 material="color:#BAD7F2;"
                 isPickedUp="false"
-                isMatched="false"
                 switchable>
             </a-entity>
 
@@ -128,7 +139,6 @@
                 geometry="primitive:plane; width:2; height:3;"
                 material="color:#BAD7F2;"
                 isPickedUp="false"
-                isMatched="false"
                 switchable>
             </a-entity>
 
@@ -138,7 +148,6 @@
                 geometry="primitive:plane; width:2; height:3;"
                 material="color:#B18FCF;"
                 isPickedUp="false"
-                isMatched="false"
                 switchable>
             </a-entity>
 
@@ -148,7 +157,6 @@
                 geometry="primitive:plane; width:2; height:3;"
                 material="color:#B18FCF;"
                 isPickedUp="false"
-                isMatched="false"
                 switchable>
             </a-entity>
 
@@ -268,12 +276,17 @@
                     cardTwo = document.querySelector('#'+data[1]);
                     cardTwo.setAttribute('material', 'color', '#808080');
                     cardTwo.isMatched = true;
+
+                    //play sounds effect:
+                    correctSound.forEach(function(soundEntity) {
+                        soundEntity.components.sound.playSound();
+                    });
                 });
                 
 
-                // LISTEN FOR MATCH TURN OVER
-                // --------------------------
-                socket.on("match_timer_over", () =>{
+                // LISTEN FOR MATCHING OVER
+                // ------------------------
+                socket.on("start_swap_timer", () =>{
                     
                     //update state:
                     player.state = "swapping";
@@ -290,11 +303,9 @@
                 // END GAME
                 // --------
                 socket.on("end_game", () => {
-                    //update state:
-                    player.state= "gameOver";
 
                     //display end screen:
-                    document.querySelector('#restart_button').setAttribute('position', '0 -2 0');
+                    document.querySelector('#restart_button').setAttribute('position', '0 -1 0.1');
                     document.querySelector('#end_screen').setAttribute('visible', true);
                 });
             });

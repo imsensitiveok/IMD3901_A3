@@ -6,6 +6,7 @@ AFRAME.registerComponent('matchable', {
         //declare constants:
         const card = this;
         const player = document.querySelector('#camera');
+        const matchSound = document.querySelectorAll('.match-sound');
 
         card.el.addEventListener('click', (e) => {
 
@@ -41,6 +42,11 @@ AFRAME.registerComponent('matchable', {
                             //emit event and send ids of swapped cards:
                             var swappedCards = [cardOne.getAttribute('id'), card.el.getAttribute('id')]
                             socket.emit("card_matched", swappedCards);
+
+                            //play sounds effect:
+                            matchSound.forEach(function(soundEntity) {
+                                soundEntity.components.sound.playSound();
+                            });
                         } 
                         else {
                             //hide card:
@@ -55,7 +61,7 @@ AFRAME.registerComponent('matchable', {
                         if (document.querySelector('[isMatched="' + false + '"]') == null) {
 
                             //display end screen:
-                            document.querySelector('#restart_button').setAttribute('position', '0 -2 0');
+                            document.querySelector('#restart_button').setAttribute('position', '0 -1 0.1');
                             document.querySelector('#end_screen').setAttribute('visible', true);
                             
                             //emit stuff:

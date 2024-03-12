@@ -13,19 +13,36 @@
             <!-- camera -->
             <a-entity id="camera" 
                 camera position="0 0 0" 
+                camera look-controls wasd-controls
                 cursor="rayOrigin:mouse;" 
                 raycaster="far:20; interval:200; objects:.interactive;" 
                 isHolding="false"
                 state="swapping">
             </a-entity>
+            
 
+            <!-- audio files -->>
+            <a-assets timeout="10000">
+                <audio id="match_sound" src="/assets/match.mp3" preload="auto" crossorigin="anonymous"></audio>
+  
+              <a-entity 
+                class="match-sound" 
+                sound="src:#match_sound; autoplay:false;">
+              </a-entity>
+            </a-assets>
+            
 
             <!-- start screen -->
             <a-entity id="start_screen" position="0 0 -3">
                 <a-entity id="screen" geometry="primitive:plane; width:20; height:20;" material="color:#5B84B1"></a-entity>
 
+                <a-entity
+                    position="0 0.5 0"
+                    text="value:Your Goal: match as many cards as possible before your turn ends and the other player swaps them around; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:5; wrapCount:30;">
+                </a-entity>
+
                 <a-entity id="start_button" 
-                    position="0 -2 0"
+                    position="0 -1.7 0.1"
                     class="button interactive" 
                     geometry="primitive:plane; width:2; height:0.75;"
                     material="color:#FC766A;"
@@ -36,7 +53,7 @@
                 </a-entity>
 
                 <a-entity id="waiting_text"
-                    position="0 -1 0"
+                    position="0 -0.8 0"
                     text="value:waiting for other player...; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:5; wrapCount:30;"
                     visible="false">
                 </a-entity>
@@ -49,7 +66,7 @@
                 <a-entity id="screen" geometry="primitive:plane; width:20; height:20;" material="color:#5B84B1"></a-entity>
 
                 <a-entity id="restart_button" 
-                    position="0 -20 0"
+                    position="0 -20 0.1"
                     class="button interactive" 
                     geometry="primitive:plane; width:2; height:0.75;"
                     material="color:#FC766A;"
@@ -60,7 +77,6 @@
                 </a-entity>
 
                 <a-entity id="text"
-                    position="0 -1 0"
                     text="value:The game is over!; color:#FFFFFF; font:https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; align:center; width:5; wrapCount:30;">
                 </a-entity>
                 
@@ -175,6 +191,7 @@
             const socket = io();
             const player = document.querySelector('#camera');
             const timer = document.querySelector('#timer');
+            
 
             //declare variables:
             var startSwap = false;

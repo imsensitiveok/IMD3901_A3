@@ -6,9 +6,9 @@ AFRAME.registerComponent('switchable', {
         //declare variables:
         const card = this;
         card.el.isMatched = false;
-
         const player = document.querySelector('#camera');
         player.isHolding = false;
+        const swapSound = document.querySelectorAll('.swap-sound');
 
 
         card.el.addEventListener('click', (e) => {
@@ -31,6 +31,11 @@ AFRAME.registerComponent('switchable', {
                     document.querySelector('[isPickedUp="' + true + '"]').setAttribute('scale', '1, 1, 1');
                     document.querySelector('[isPickedUp="' + true + '"]').setAttribute('isPickedUp', false);
                     player.isHolding = false;
+
+                    //play sounds effect:
+                    swapSound.forEach(function(soundEntity) {
+                        soundEntity.components.sound.playSound();
+                    });
                 }
 
                 //pick up card:

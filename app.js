@@ -34,7 +34,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on("match_timer_over", (data) => {
-        io.emit("match_timer_over");
+        console.log("match_timer_over");
+        io.emit("start_swap_timer");
     });
 
     socket.on("card_matched", (data) => {
