@@ -219,7 +219,6 @@
 
                 //if timer over:
                 if(time == 0) {
-
                     //stop timer:
                     clearInterval(timeInterval);
 
@@ -239,7 +238,6 @@
                     
                     //hide it's your turn text:
                     document.querySelector('#its_your_turn').setAttribute('visible', false);
-
                 }
             }
 
@@ -249,44 +247,23 @@
                 // START GAME
                 // ----------
                 document.querySelector("#start_button").addEventListener('click', function() {
-                    startMatch = true;
-
-                    //emit start match:
-                    socket.emit('start_match', true);
+                    //emit that match has started:
+                    socket.emit("start_pressed", 'match');
                     
                     //display waiting text:
                     document.querySelector("#waiting_text").setAttribute('visible', true);
-
-                    //if both players have clicked start:
-                    if (startSwap == true) {
-
-                        //move start button onto screen:
-                        document.querySelector('#start_button').setAttribute('position', '0 -20 0');
-
-                        //display start screen:
-                        document.querySelector('#start_screen').setAttribute('visible', false);
-                    }
+                    
                 });
-
-                socket.on("swap_started", () => {
-                    startSwap = true;
-
-                    //if both players have clicked start:
-                    if (startMatch == true) {
-
-                        //move start button onto screen:
-                        document.querySelector('#start_button').setAttribute('position', '0 -20 0');
-
-                        //display start screen:
-                        document.querySelector('#start_screen').setAttribute('visible', false);
-                    }
+                socket.on("start", () => {
+                    //remove start screen:
+                    document.querySelector('#start_button').setAttribute('position', '0 -20 0');
+                    document.querySelector('#start_screen').setAttribute('visible', false);
                 });
 
 
                 // START MATCHING
                 // --------------
                 socket.on("swap_cards", (data) => {
-
                     //update card colours:
                     for (var i=0; i<cards.length; i++) {
                         if (data[i] != "#808080") {
@@ -295,7 +272,6 @@
                     }
 
                     //update state:
-                    const player =  document.querySelector('#camera');
                     player.state = "matching";
 
                     //start timer:

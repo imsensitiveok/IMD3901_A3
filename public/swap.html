@@ -209,7 +209,6 @@
 
                 //if timer over:
                 if(time == 0) {
-
                     //stop timer:
                     clearInterval(timeInterval);
 
@@ -240,47 +239,37 @@
                 // START GAME
                 // ----------
                 document.querySelector("#start_button").addEventListener('click', function() {
-                    startSwap = true;
-                    socket.emit('start_swap');
+                    //emit that swap has started:
+                    socket.emit("start_pressed", 'swap');
+
+                    //display waiting text:
                     document.querySelector("#waiting_text").setAttribute('visible', true);
-
-                    if (startMatch == true) {
-                        document.querySelector('#start_button').setAttribute('position', '0 -20 0');
-                        document.querySelector('#start_screen').setAttribute('visible', false);
-                        player.state = "swapping";
-                        timeInterval = setInterval(updateTime, 1000);
-                    }
                 });
+                socket.on("start", () => {
+                    //remove start screen:
+                    document.querySelector('#start_button').setAttribute('position', '0 -20 0');
+                    document.querySelector('#start_screen').setAttribute('visible', false);
 
-                socket.on("match_started", () => {
-                    startMatch = true;
+                    //set state to swapping:
+                    player.state = "swapping";
 
-                    if (startSwap == true) {
-                        document.querySelector('#start_button').setAttribute('position', '0 -20 0');
-                        document.querySelector('#start_screen').setAttribute('visible', false);
-                        player.state = "swapping";
-                        timeInterval = setInterval(updateTime, 1000);
-                    }
+                    //start timer:
+                    timeInterval = setInterval(updateTime, 1000);
                 });
 
 
                 // UPDATE CARDS ON MATCH
                 // ---------------------
                 socket.on("color_change", (data) => {
-                    //card one
+                    //card one:
                     cardOne = document.querySelector('#'+data[0]);
                     cardOne.setAttribute('material', 'color', '#808080');
                     cardOne.isMatched = true;
 
-                    //card two
+                    //card two:
                     cardTwo = document.querySelector('#'+data[1]);
                     cardTwo.setAttribute('material', 'color', '#808080');
                     cardTwo.isMatched = true;
-
-                    //play sounds effect:
-                    correctSound.forEach(function(soundEntity) {
-                        soundEntity.components.sound.playSound();
-                    });
                 });
                 
 

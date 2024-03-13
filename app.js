@@ -6,9 +6,9 @@ const io        = require('socket.io')(server);
 
 const LISTEN_PORT   = 8080;
 
-app.use(express.static(__dirname + '/public')); //set root path of server ...
+app.use(express.static(__dirname + '/public'));
 
-//our routes
+//our routes:
 app.get( '/', function( req, res ){ 
     res.sendFile( __dirname + '/public/index.html' );
 });
@@ -21,12 +21,23 @@ app.get( '/swap', function( req, res ){
     res.sendFile( __dirname + '/public/swap.html' );
 });
 
-//socket.io stuff
+
+//stores if each player has started:
+var swapStart = false;
+var matchStart = false;
+
+
+// SOCKETS
+// -------
 io.on('connection', (socket) => {
     console.log( socket.id + " connected" );
 
     socket.on('disconnect', () => {
         console.log( socket.id + " disconnected" );
+
+        //reset swap and match started variables to false:
+        swapStart = false;
+        matchStart = false;
     });
 
     socket.on("swap_timer_over", (data) => {
@@ -34,7 +45,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on("match_timer_over", (data) => {
-        console.log("match_timer_over");
         io.emit("start_swap_timer");
     });
 
@@ -46,16 +56,23 @@ io.on('connection', (socket) => {
         io.emit("end_game");
     });
 
-    socket.on("start_swap", (data) => {
-        console.log("start swap event received");
-        io.emit("swap_started");
+    // START BUTTONS
+    // -------------
+    socket.on("start_pressed", (data) => {
+        //stores if swap has started:
+        if (data === 'swap') {
+            swapStart = true;
+
+        //stores if match has started:
+        } else if (data === 'match') {
+            matchStart = true;
+        }
+
+        //start game if both buttons clicked:
+        if (swapStart && matchStart) {
+            io.emit("start");
+        }
     });
-
-    socket.on("start_match", (data) => {
-        console.log("start match event received");
-        io.emit("match_started");
-    })
-
 });
 
 server.listen(LISTEN_PORT);
